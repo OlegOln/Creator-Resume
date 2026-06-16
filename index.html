@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор резюме ЯЮниор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rs-black: #000000;
+            --rs-white: #FFFFFF;
+            --rs-paper: #F5F2EC;
+            --rs-ink: #0A0A0A;
+            --rs-green: #00FF00;
+            --rs-magenta: #FF56FF;
+            --rs-blue: #0000FF;
+            --rs-cyan: #67E6F0;
+            --rs-red: #FF2D2D;
+            --rs-yellow: #FFE600;
+            
+            --accent: var(--rs-green);
+            --accent-ink: var(--rs-black);
+            --bg: var(--rs-paper);
+            --surface: var(--rs-white);
+            --text: var(--rs-black);
+            --text-muted: #3a3a3a;
+            --border: var(--rs-black);
+            --border-faint: rgba(0,0,0,0.12);
+
+            --shadow-1: 4px 4px 0 var(--rs-black);
+            --shadow-2: 8px 8px 0 var(--rs-black);
+            --shadow-green: 8px 8px 0 var(--rs-green);
+            --shadow-magenta: 8px 8px 0 var(--rs-magenta);
+            --shadow-blue: 8px 8px 0 var(--rs-blue);
+
+            --bw-1: 2px;
+            --bw-2: 4px;
+            --bw-3: 6px;
+            --radius: 0;
+
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --fs-body: 17px;
+            --fs-small: 14px;
+            --fs-micro: 12px;
+            --leading-body: 1.5;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: var(--fs-body);
+            line-height: var(--leading-body);
+            -webkit-font-smoothing: antialiased;
+            background-image: radial-gradient(var(--border-faint) 1px, transparent 1px);
+            background-size: 24px 24px; /* Точечный паттерн фона */
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px 80px; }
+
+        header {
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .eyebrow {
+            font-family: var(--font-mono); font-size: var(--fs-micro); text-transform: uppercase;
+            letter-spacing: 0.12em; border: var(--bw-1) solid var(--rs-black); display: inline-block;
+            padding: 6px 14px; margin-bottom: 24px; background: var(--rs-white); color: var(--rs-black);
+            box-shadow: var(--shadow-1);
+        }
+
+        h1 {
+            font-family: var(--font-display); font-size: clamp(40px, 7vw, 72px); font-weight: 700;
+            letter-spacing: -0.04em; line-height: 0.9; text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .hl { background-color: var(--accent); padding: 0 12px; display: inline-block; box-shadow: var(--shadow-1); }
+        
+        .subtitle { 
+            font-size: 20px; 
+            color: var(--text-muted); 
+            max-width: 600px; 
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* Карточки шагов */
+        .step-card {
+            background: var(--surface);
+            border: var(--bw-2) solid var(--border);
+            box-shadow: var(--shadow-2);
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .step-header {
+            background: var(--rs-black);
+            color: var(--rs-white);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: var(--bw-2) solid var(--rs-black);
+        }
+
+        .step-num {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            background: var(--accent);
+            color: var(--rs-black);
+            padding: 4px 8px;
+        }
+
+        .step-header h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin: 0;
+            border: none;
+            padding: 0;
+            display: inline;
+        }
+
+        .step-body { padding: 24px; }
+
+        /* Табы */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: var(--bw-2) solid var(--rs-black); }
+        .tab-btn {
+            padding: 12px 20px; border: var(--bw-2) solid var(--rs-black); border-bottom: none;
+            background: transparent; color: var(--rs-black); font-family: var(--font-body); font-weight: 700;
+            font-size: 14px; cursor: pointer; text-transform: uppercase; margin-bottom: -4px;
+            transition: 0.1s;
+        }
+        .tab-btn.active { background: var(--rs-black); color: var(--rs-white); }
+
+        /* Зоны загрузки */
+        .upload-zone {
+            border: var(--bw-2) dashed var(--border-faint); padding: 40px 20px;
+            text-align: center; cursor: pointer; transition: 0.2s; background: var(--bg);
+        }
+        .upload-zone:hover { border-color: var(--rs-black); box-shadow: inset 0 0 0 1px var(--rs-black); }
+        .upload-zone.drag-hover { border-style: solid; border-color: var(--accent); background: rgba(0, 255, 0, 0.1); }
+        .upload-zone.has-file { border-style: solid; border-color: var(--accent); background: rgba(0, 255, 0, 0.05); }
+
+        .upload-zone p { font-weight: 500; margin: 0; }
+        .upload-zone small { font-family: var(--font-mono); color: var(--text-muted); }
+
+        /* Формы */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-mono); }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 14px 16px; border: var(--bw-1) solid var(--rs-black);
+            font-family: var(--font-body); font-size: 16px; background: var(--rs-white);
+            transition: 0.1s;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; box-shadow: var(--shadow-1); transform: translate(-2px,-2px); }
+
+        .hidden { display: none !important; }
+        .photo-preview { width: 80px; height: 80px; object-fit: cover; border: var(--bw-2) solid var(--rs-black); margin-top: 12px; }
+
+        /* Кастомный переключатель (Story) */
+        .toggle-wrapper {
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
+            padding: 16px; border: var(--bw-1) solid var(--rs-black); background: var(--bg);
+        }
+        .toggle-text h3 { font-size: 18px; font-weight: 700; margin: 0 0 4px 0; }
+        .toggle-text p { font-size: 14px; color: var(--text-muted); margin: 0; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 30px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--rs-white); border: var(--bw-2) solid var(--rs-black); transition: 0.2s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; top: 4px; background: var(--rs-black); transition: 0.2s; }
+        input:checked + .slider { background: var(--rs-blue); }
+        input:checked + .slider:before { transform: translateX(28px); background: var(--rs-white); }
+
+        /* Кнопки */
+        .btn-generate {
+            width: 100%; padding: 24px 36px; font-size: 18px; font-weight: 700; text-transform: uppercase;
+            color: var(--accent-ink); border: var(--bw-2) solid var(--rs-black); cursor: pointer; 
+            background: var(--accent); box-shadow: var(--shadow-2); font-family: var(--font-display); transition: 0.1s;
+            margin-top: 16px;
+        }
+        .btn-generate.with-vacancy { background: var(--rs-magenta); color: var(--rs-white); box-shadow: var(--shadow-magenta); }
+        .btn-generate:hover { transform: translate(-2px, -2px); box-shadow: 12px 12px 0 var(--rs-black); }
+        .btn-generate:active { transform: translate(2px, 2px); box-shadow: 4px 4px 0 var(--rs-black); }
+        .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: var(--shadow-2); }
+
+        .btn-reset {
+            width: 100%; padding: 18px; border: var(--bw-2) solid var(--rs-black); background: transparent;
+            color: var(--rs-black); font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 16px;
+            font-family: var(--font-mono); text-transform: uppercase; transition: 0.1s;
+        }
+        .btn-reset:hover { background: var(--rs-black); color: var(--rs-white); }
+
+        .loader { display: none; text-align: center; margin-top: 32px; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; }
+        .loader p { background: var(--rs-black); color: var(--rs-green); display: inline-block; padding: 12px 24px; box-shadow: var(--shadow-1); }
+
+        /* Результаты */
+        #result-section { animation: slideDown 0.4s ease-out; margin-top: 40px; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .result-card { border: var(--bw-3) solid var(--rs-black); background: var(--rs-white); padding: 0; box-shadow: 12px 12px 0 var(--accent); }
+        .result-header { background: var(--accent); padding: 24px; border-bottom: var(--bw-3) solid var(--rs-black); }
+        .result-header h2 { font-size: 32px; text-transform: uppercase; margin: 0; }
+        .result-body { padding: 24px; }
+        .result-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+        .btn-download {
+            flex: 1; min-width: 200px; padding: 20px; border: var(--bw-2) solid var(--rs-black);
+            color: var(--rs-black); font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none;
+            text-align: center; transition: 0.1s; font-family: var(--font-display); text-transform: uppercase;
+            display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center;
+        }
+        .btn-download small { font-family: var(--font-mono); font-size: 10px; opacity: 0.7; }
+
+        .resume-btn { background: var(--rs-white); color: var(--rs-black); box-shadow: var(--shadow-1); }
+        .resume-btn:hover { background: var(--accent); transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--rs-black); }
+
+        .cover-btn { background: var(--rs-white); color: var(--rs-black); box-shadow: 6px 6px 0 var(--rs-magenta); }
+        .cover-btn:hover { background: var(--rs-magenta); color: var(--rs-white); transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--rs-black); }
+
+        .story-btn { background: var(--rs-white); color: var(--rs-black); box-shadow: 6px 6px 0 var(--rs-blue); }
+        .story-btn:hover { background: var(--rs-blue); color: var(--rs-white); transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--rs-black); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="eyebrow">// ЯЮниор · AI Генератор</div>
+        <h1>Твое идеальное <span class="hl">резюме</span></h1>
+        <p class="subtitle">От пикселя к офферу. ATS-дружелюбный формат, сопроводительное письмо и рассказ для собеседования за 1 клик.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- ШАГ 1 -->
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-num">01</span>
+                <h2>Исходные данные</h2>
+            </div>
+            <div class="step-body">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('upload', this)">Загрузить файл</button>
+                    <button class="tab-btn" onclick="switchTab('manual', this)">Заполнить вручную</button>
+                </div>
+
+                <div id="tab-upload">
+                    <div class="upload-zone" id="resume-drop" onclick="document.getElementById('resume-file').click()">
+                        <input type="file" id="resume-file" accept=".pdf,.doc,.docx" style="display:none" onchange="handleFile(this, 'resume')">
+                        <p>Перетащите резюме сюда</p>
+                        <small>PDF, DOC, DOCX</small>
+                        <p id="resume-file-name" style="color: var(--rs-blue); font-weight:700; margin-top:12px; font-family: var(--font-mono);"></p>
+                    </div>
+                </div>
+
+                <div id="tab-manual" class="hidden">
+                    <div class="form-group"><label>ФИО</label><input type="text" id="m-name"></div>
+                    <div class="form-group"><label>Контакты</label><input type="text" id="m-contacts"></div>
+                    <div class="form-group"><label>Желаемая должность</label><input type="text" id="m-position"></div>
+                    <div class="form-group"><label>Опыт работы</label><textarea id="m-experience" rows="3"></textarea></div>
+                    <div class="form-group"><label>Навыки</label><textarea id="m-skills" rows="3"></textarea></div>
+                    <div class="form-group"><label>Образование</label><textarea id="m-education" rows="2"></textarea></div>
+                    <div class="form-group"><label>О себе</label><textarea id="m-about" rows="3"></textarea></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 2 -->
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-num">02</span>
+                <h2>Фотография</h2>
+            </div>
+            <div class="step-body">
+                <div class="upload-zone" id="photo-drop" onclick="document.getElementById('photo-file').click()" style="padding: 24px;">
+                    <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+                    <p>Загрузить фото (опционально)</p>
+                    <img id="photo-preview" class="photo-preview hidden" src="" alt="Preview">
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 3 -->
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-num">03</span>
+                <h2>Вакансия</h2>
+            </div>
+            <div class="step-body">
+                <div class="upload-zone" id="vacancy-drop" onclick="document.getElementById('vacancy-file').click()">
+                    <input type="file" id="vacancy-file" accept=".pdf,.doc,.docx" style="display:none" onchange="handleFile(this, 'vacancy')">
+                    <p>Перетащите описание вакансии</p>
+                    <small>Если есть — сделаем сопроводительное письмо</small>
+                    <p id="vacancy-file-name" style="color: var(--rs-magenta); font-weight:700; margin-top:12px; font-family: var(--font-mono);"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ШАГ 4 -->
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-num">04</span>
+                <h2>Дополнительно</h2>
+            </div>
+            <div class="step-body">
+                <div class="toggle-wrapper">
+                    <div class="toggle-text">
+                        <h3>Рассказ о себе</h3>
+                        <p>Сгенерировать речь для собеседования (5-7 мин)</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="need-story">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button id="btn-gen" class="btn-generate" onclick="generate()">
+            Сгенерировать резюме
+        </button>
+
+        <button onclick="resetForm()" class="btn-reset">
+            // Очистить и начать заново
+        </button>
+
+        <div id="loader" class="loader">
+            <p>⚡ ИИ анализирует данные... Ожидайте ⚡</p>
+        </div>
+
+        <div id="result-section" class="hidden">
+            <div class="result-card">
+                <div class="result-header">
+                    <h2>Документы готовы!</h2>
+                </div>
+                <div class="result-body">
+                    <div class="result-actions">
+                        <a id="dl-resume" href="#" class="btn-download resume-btn" download>
+                            <span style="font-size: 24px;">📄</span> Резюме
+                            <small>Word .docx</small>
+                        </a>
+                        <a id="dl-cover" href="#" class="btn-download cover-btn hidden" download>
+                            <span style="font-size: 24px;">✉️</span> Сопроводительное
+                            <small>Word .docx</small>
+                        </a>
+                        <a id="dl-story" href="#" class="btn-download story-btn hidden" download>
+                            <span style="font-size: 24px;">🎤</span> Рассказ
+                            <small>Word .docx</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    function switchTab(tab, btnElement) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+        document.getElementById('tab-upload').classList.toggle('hidden', tab !== 'upload');
+        document.getElementById('tab-manual').classList.toggle('hidden', tab !== 'manual');
+    }
+
+    function handleFile(input, type) {
+        if (input.files.length > 0) {
+            const fileName = input.files[0].name;
+            const dropZone = document.getElementById(`${type}-drop`);
+            const nameEl = document.getElementById(`${type}-file-name`);
+            if(dropZone) dropZone.classList.add('has-file');
+            nameEl.innerText = `Выбран: ${fileName}`;
+
+            if(type === 'vacancy') {
+                const btn = document.getElementById('btn-gen');
+                btn.classList.add('with-vacancy');
+                btn.innerText = 'Сгенерировать резюме + письмо';
+            }
+        }
+    }
+
+    function handlePhoto(input) {
+        if (input.files.length > 0) {
+            const preview = document.getElementById('photo-preview');
+            preview.src = URL.createObjectURL(input.files[0]);
+            preview.classList.remove('hidden');
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('resume-file').value = '';
+        document.getElementById('resume-file-name').innerText = '';
+        document.getElementById('resume-drop').classList.remove('has-file');
+        
+        document.getElementById('vacancy-file').value = '';
+        document.getElementById('vacancy-file-name').innerText = '';
+        document.getElementById('vacancy-drop').classList.remove('has-file');
+        document.getElementById('btn-gen').classList.remove('with-vacancy');
+        document.getElementById('btn-gen').innerText = 'Сгенерировать резюме';
+
+        document.getElementById('photo-file').value = '';
+        document.getElementById('photo-preview').classList.add('hidden');
+        document.getElementById('photo-preview').src = '';
+
+        document.getElementById('need-story').checked = false;
+        document.querySelectorAll('#tab-manual input, #tab-manual textarea').forEach(el => el.value = '');
+        document.getElementById('result-section').classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function generate() {
+        const formData = new FormData();
+        const isUpload = !document.getElementById('tab-upload').classList.contains('hidden');
+        
+        if(isUpload) {
+            const resumeFile = document.getElementById('resume-file').files[0];
+            if(!resumeFile) return alert("Пожалуйста, загрузите резюме!");
+            formData.append('resume', resumeFile);
+        } else {
+            const manualData = {
+                name: document.getElementById('m-name').value.trim(),
+                contacts: document.getElementById('m-contacts').value.trim(),
+                position: document.getElementById('m-position').value.trim(),
+                experience: document.getElementById('m-experience').value.trim(),
+                skills: document.getElementById('m-skills').value.trim(),
+                education: document.getElementById('m-education').value.trim(),
+                about: document.getElementById('m-about').value.trim()
+            };
+            
+            const filledCount = Object.values(manualData).filter(v => v.length > 0).length;
+            if(!manualData.name) return alert("Пожалуйста, укажите хотя бы ФИО!");
+            if(filledCount < 3) return alert("ИИ не сможет составить резюме только из ФИО. Заполните еще 2 поля.");
+            
+            formData.append('manualData', JSON.stringify(manualData));
+        }
+
+        const photoFile = document.getElementById('photo-file').files[0];
+        if(photoFile) formData.append('photo', photoFile);
+
+        const vacancyFile = document.getElementById('vacancy-file').files[0];
+        if(vacancyFile) formData.append('vacancy', vacancyFile);
+
+        const needStory = document.getElementById('need-story').checked;
+        if(needStory) formData.append('needStory', 'true');
+
+        document.getElementById('btn-gen').disabled = true;
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('result-section').classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/generate', { method: 'POST', body: formData });
+            const result = await response.json();
+            
+            if(response.ok && result.success) {
+                document.getElementById('dl-resume').href = result.resumeUrl;
+                
+                const coverBtn = document.getElementById('dl-cover');
+                if(result.coverUrl) { coverBtn.href = result.coverUrl; coverBtn.classList.remove('hidden'); }
+                else { coverBtn.classList.add('hidden'); }
+
+                const storyBtn = document.getElementById('dl-story');
+                if(result.storyUrl) { storyBtn.href = result.storyUrl; storyBtn.classList.remove('hidden'); }
+                else { storyBtn.classList.add('hidden'); }
+
+                document.getElementById('result-section').classList.remove('hidden');
+                document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert("Ошибка: " + (result.error || "Неизвестная ошибка сервера"));
+            }
+        } catch(e) {
+            alert("Сеть: Не удалось связаться с сервером.");
+        } finally {
+            document.getElementById('btn-gen').disabled = false;
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    function setupDropZone(dropZoneId, inputId, type) {
+        const dropZone = document.getElementById(dropZoneId);
+        const input = document.getElementById(inputId);
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, () => { dropZone.classList.add('drag-hover'); }, false); });
+        ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, () => { dropZone.classList.remove('drag-hover'); }, false); });
+        dropZone.addEventListener('drop', (e) => {
+            let files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                input.files = dataTransfer.files;
+                if (type === 'photo') { handlePhoto(input); } else { handleFile(input, type); }
+            }
+        }, false);
+    }
+    setupDropZone('resume-drop', 'resume-file', 'resume');
+    setupDropZone('vacancy-drop', 'vacancy-file', 'vacancy');
+    setupDropZone('photo-drop', 'photo-file', 'photo');
+</script>
+</body>
+</html>
