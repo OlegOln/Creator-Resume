@@ -99,14 +99,18 @@ async function extractText(filePath, originalName) {
         } else if (ext === '.docx') {
             const result = await mammoth.extractRawText({path: filePath});
             return result.value;
-        } else if (ext === '.doc' || ext === '.rtf') {
-            // УБРАНА ПОДДЕРЖКА RTF И DOC
-            throw new Error("Форматы .doc и .rtf больше не поддерживаются. Пожалуйста, пересохраните файл как .docx или .pdf.");
+        } else if (ext === '.doc') {
+            // НОВАЯ ОБРАБОТКА СТАРЫХ .doc ФАЙЛОВ
+            const extractor = new WordExtractor();
+            const extracted = await extractor.extract(filePath);
+            return extracted.getBody();
+        } else if (ext === '.rtf') {
+            throw new Error("Формат .rtf не поддерживается. Пожалуйста, пересохраните файл как .docx или .pdf.");
         } else {
             throw new Error(`Неподдерживаемый формат файла: ${ext}`);
         }
     } catch (err) {
-        if (err.message.includes("не поддерживаются") || err.message.includes("Неподдерживаемый формат")) throw err;
+        if (err.message.includes("не поддерживается") || err.message.includes("Неподдерживаемый формат")) throw err;
         throw new Error("Произошла ошибка при чтении файла.");
     }
 }
